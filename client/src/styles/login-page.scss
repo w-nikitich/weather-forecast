@@ -1,0 +1,156 @@
+@import './constants.scss';
+
+.login, .registration {
+    background-color: $bg-color-default;
+    height: 100vh;
+
+    &__wrapper {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        margin: 0 auto;
+        width: 20vw;
+        position: relative;
+    }
+
+    &__block--in, &__block--up {
+        margin: 50% 0;
+        border-radius: 20px;
+        width: 100%;
+        font-size: $font-size;
+        background-color: $bg-color-login;
+        font-family: $font-family;
+        // padding: 20px;
+
+        p {
+            margin: 0 0 10px 10px;
+            text-align: center;
+            font-size: $font-login-title-size;
+        }
+
+        label {
+            
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        .login__text {
+            display: none;
+        }
+
+        .login__text.unvalid {
+            display: block;
+            font-size: $font-size-unvalid;
+            color: $login-color;
+            line-height: 10px;
+            text-align: start;
+            margin-left: 0;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        input.unvalid {
+            border: 2px solid $color-unvalid;
+        }
+    }
+
+    &__form--in, &__form--up {
+        padding: 20px;
+    }
+
+    &__text--in, &__text--up {
+        padding-top: 10px;
+
+        &::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 1px;
+            background-color: $login-color;
+        }
+    }
+
+    &__buttons--in, &__buttons--up {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+
+        #sign__in, a {
+            width: 40%;
+        }
+
+        #sign__in, .sign__up {
+            font-size: $font-size;
+            background-color: $login-color;
+            border-color: $login-color;
+            transition: all .5s;
+            
+            &:hover, &:focus {
+                // background-color: $bg-color-default;
+                border-color: $bg-color-default;
+                transition: all .5s;
+                box-shadow: inset 0 -3.25em 0 0 $bg-color-default;
+                color: $login-color;
+            }
+        }
+    }
+
+    &__buttons--up {
+        justify-content: center;
+
+        #sign__in {
+            display: none;
+        }
+
+        .sign__up {
+            width: 100%;
+        }
+    }
+
+    &__block--in {
+        .login__text--up {
+            display: none;
+        }
+    }
+
+    &__block--up {
+        .login__text--in {
+            display: none;
+        }
+    }
+
+    &__form--in {
+        .login__label--up {
+            display: none;
+        }
+
+        .login__input--up {
+            display: none;
+        }
+    }
+
+    &__form--up {
+        .login__label--in {
+            display: none;
+        }
+
+        .login__input--in {
+            display: none;
+        }
+    }
+
+    &__text--up {
+
+    }
+
+    // display: ;
+}

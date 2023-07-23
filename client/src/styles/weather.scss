@@ -1,0 +1,36 @@
+@import './constants.scss';
+
+.weather {
+    background-color: $bg-color-default;
+
+    &__data, &__location {
+        width: 30vw;
+    }
+
+    &__data {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        background-color: $bg-color-weather;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    &__output {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-family: $font-family;
+        font-weight: 600;
+        font-size: 25px;
+        line-height: 17px;
+    }
+
+    &__icon {
+        width: 50%;
+
+        img {
+            width: 100%
+        }
+    }
+}

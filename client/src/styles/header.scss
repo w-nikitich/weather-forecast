@@ -1,0 +1,18 @@
+@import './constants.scss';
+
+.header {
+    background-color: $bg-color-default;
+    height: 20vw;
+
+    a {
+        font-family: $font-family;
+        font-weight: 600;
+        font-size: 26px;
+        color: #a200ff;
+        text-decoration: none;
+    }
+
+    &__sign--in {
+        margin-right: 30px;
+    }
+}

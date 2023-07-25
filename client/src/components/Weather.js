@@ -13,8 +13,8 @@ import tornado_icon from '../images/tornado_icon.png';
 import squall_icon from '../images/squall_icon.png';
 import Container from "react-bootstrap/esm/Container";
 
-function Weather() {
-    const [location, setLocation] = useState('');
+function Weather({sign}) {
+    const [location, setLocation] = useState('Kyiv');
     const [forecast, setForecast] = useState([]);
     const [icon, setIcon] = useState('');
     const [value, setValue] = useState('');
@@ -37,27 +37,30 @@ function Weather() {
         squall: squall_icon
     }
 
-    const urlLocation = `https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=adf38b48f7dadb4280bc1f2b2a841845`;
+    async function getWeatherData(location) {
+        const urlLocation = `https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=adf38b48f7dadb4280bc1f2b2a841845`;
+        const response = await axios.get(urlLocation);
+        const urlWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${response.data[0].lat}&lon=${response.data[0].lon}&units=metric&appid=adf38b48f7dadb4280bc1f2b2a841845`;
+        
+        axios.get(urlWeather).then((res) => {
+            setForecast([res.data.main.temp, res.data.main.feels_like, res.data.clouds.all, res.data.weather[0].main]);
 
-    const searchLocation = (event)  => {
+            Object.keys(weatherData).map((key, index) => {
+                if (key == res.data.weather[0].main.toLowerCase()) {
+                    setIcon(weatherData[key]);
+                }
+            })
+        });
+    }
 
-        if (event.key === 'Enter') {
-            axios.get(urlLocation).then((response) => {
-                const urlWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${response.data[0].lat}&lon=${response.data[0].lon}&units=metric&appid=adf38b48f7dadb4280bc1f2b2a841845`
-
-                axios.get(urlWeather).then((response) => {
-                    setForecast([response.data.main.temp, response.data.main.feels_like, response.data.clouds.all, response.data.weather[0].main]);
-
-                    Object.keys(weatherData).map((key, index) => {
-                        if (key == response.data.weather[0].main.toLowerCase()) {
-                            setIcon(weatherData[key]);
-                        }
-                    })
-                })
-            }).catch((error) => {
-
-            });
+    async function searchLocation(event) {
+        if (event.key == 'Enter') {
+            await getWeatherData(location);
         }
+    }
+
+    window.onload = async function() {
+        await getWeatherData(location);
     }
 
     return(
@@ -73,7 +76,7 @@ function Weather() {
 
                     <p>Your city: <span>{location}</span></p>
                 </div>
-                <div className="weather__data">
+                <div className={`weather__data`}>
                     <div className="weather__output">
                         <p className="weather__ temp">{forecast[0]} ° C</p>
                         <p className="weather__feels">Feels like {forecast[1]} ° C</p>

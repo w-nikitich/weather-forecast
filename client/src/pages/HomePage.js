@@ -6,7 +6,7 @@ function HomePage() {
     return(
         <div className="home">
             <Header/>
-            <Weather/>
+            <Weather sign={'empty'}/>
         </div>
     )
 }

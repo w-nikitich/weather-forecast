@@ -1,8 +1,17 @@
 @import '~bootstrap/scss/bootstrap';
+@import './constants.scss';
 @import './header.scss';
 @import './weather.scss';
 @import './login-page.scss';
 
 .container {
     
+}
+
+.home {
+    background-image: url($bg_desktop_default);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+    height: 100vh;
 }

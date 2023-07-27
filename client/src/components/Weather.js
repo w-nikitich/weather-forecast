@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Cookies from 'js-cookie';
 import {useCookies} from 'react-cookie';
+import { DEFAULT_LOCATION } from "../config";
 import sunny_icon from '../images/sunny_icon.png';
 import rain_icon from '../images/rain_icon.png';
 import clouds_icon from '../images/clouds_icon.png';
@@ -16,8 +17,9 @@ import squall_icon from '../images/squall_icon.png';
 import Container from "react-bootstrap/esm/Container";
 
 function Weather({sign}) {
-    const [location, setLocation] = useState('Kyiv');
-    const [cookies, setCookies] = useCookies(['location']);
+    const city = localStorage.getItem('location') || DEFAULT_LOCATION;
+    const [location, setLocation] = useState(city);
+    // const [cookies, setCookie] = useCookies(['location']);
     const [forecast, setForecast] = useState([]);
     const [icon, setIcon] = useState('');
     const weatherData = {
@@ -40,45 +42,37 @@ function Weather({sign}) {
     }
 
     useEffect(() => {
-        setCookies('location', location);
+        // if (location == '') {
+
+        // }
+        // console.log(city);
+        localStorage.setItem('location', location);
+        // setCookie('location', location);
+    }, [location]); 
+
+    useEffect(() => {
+        // setCookie('location', location);
         async function fetchData() {
             await getWeatherData();
         }
-        setTimeout(fetchData, 4000);
-    }, [location, setCookies]); 
 
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         await getWeatherData();
-    //     }
-    //     fetchData();
-    // });
+        fetchData();
+    }, []);
 
-    function changeHandler(value) {
-        // setCookies('location', value);
-        setLocation(value);
+    function changeHandler(event) {
+        setLocation(event.target.value);
+        // setCookie('location', event.target.value);
+        // console.log(location);
     }
-
-    // console.log(location.location);
-
-    // const setCookie =  (location) => {
-    //     Cookies.set('location', location, {
-    //         expires: 30
-    //     });
-    // }
-
-    // const getCookie = (name) => {
-    //     return Cookies.get(name);
-    // }
 
     async function getWeatherData() {
         const cityOutput = document.getElementsByClassName('weather__location')[0].getElementsByTagName('p')[0];
-        console.log(cookies.location)
+        // console.log(cookies.location)
 
         try {
-            cityOutput.innerHTML = `Your city: ${cookies.location}`;
+            cityOutput.innerHTML = `Your city: ${location}`; // || location
 
-            const urlLocation = `https://api.openweathermap.org/geo/1.0/direct?q=${cookies.location}&limit=1&appid=adf38b48f7dadb4280bc1f2b2a841845`;
+            const urlLocation = `https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=adf38b48f7dadb4280bc1f2b2a841845`; //  ? cookies.location: location
             const response = await axios.get(urlLocation);
             const urlWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${response.data[0].lat}&lon=${response.data[0].lon}&units=metric&appid=adf38b48f7dadb4280bc1f2b2a841845`;
             
@@ -103,30 +97,18 @@ function Weather({sign}) {
         }
     }
 
-    // window.onload = async function() {
-    //     try {
-    //         // set cookie
-    //         console.log(location);
-    //         setCookies('location', location); 
-    //         await getWeatherData();
-    //     }
-    //     catch (error) {
-
-    //     }
-    // }
-
     return(
         <div className="weather">
             <Container>
                 <div className="weather__location">
                     <input 
-                    value={cookies.location}
-                    onChange={event => changeHandler(event.target.value)}
+                    value={location}
+                    onChange={changeHandler}
                     placeholder="Enter location"
                     onKeyDown = {searchLocation}
                     type="text"/>
 
-                    <p>Your city: <span>{cookies.location}</span></p>
+                    <p>Your city: <span>{location}</span></p>
                 </div>
                 <div className={`weather__data`}>
                     <div className="weather__output">

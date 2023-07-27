@@ -1,5 +1,9 @@
 @import './constants.scss';
 
+p {
+    margin: 0;
+}
+
 .weather {
     font-family: $font-family;
 
@@ -19,7 +23,7 @@
             width: 100%;
             text-align: center;
             border-radius: 30px;
-            border: 3px solid $input-color;
+            border: 3px solid $weather-border-color;
             background: none;
 
             &:focus {
@@ -30,11 +34,14 @@
 
     &__data {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
         position: relative;
-        background-color: $bg-color-weather;
+        background: rgba(255, 255, 255, 0.057);
         padding: 20px;
-        border-radius: 10px;
+        width: 30vw;
+        border-left: 2px solid $weather-border-color;
+        border-right: 2px solid $weather-border-color;
     }
 
     &__output {
@@ -43,8 +50,12 @@
         justify-content: space-between;
         font-family: $font-family;
         font-weight: 600;
-        font-size: 25px;
-        line-height: 17px;
+        font-size: 1.5em;
+        line-height: 20px;
+
+        p:not(:last-of-type) {
+            margin-bottom: 10px;
+        }
     }
 
     &__icon {
@@ -58,4 +69,23 @@
 
 .empty {
     display: none;
+}
+
+.current {
+    // position: relative;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.5em;
+    line-height: 20px;
+    text-transform: uppercase;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 2em;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: #000000;
+    }
 }

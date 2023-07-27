@@ -1,12 +1,12 @@
 import React from "react";
 import Header from "../components/Header";
-import Weather from "../components/Weather";
+import WeatherInput from "../components/WeatherInput";
 
 function HomePage() {
     return(
         <div className="home">
             <Header/>
-            <Weather sign={'empty'}/>
+            <WeatherInput/>
         </div>
     )
 }

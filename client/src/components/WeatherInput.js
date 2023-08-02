@@ -1,70 +1,49 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Cookies from 'js-cookie';
-import {useCookies} from 'react-cookie';
 import { DEFAULT_LOCATION } from "../config";
-import sunny_icon from '../images/sunny_icon.png';
-import rain_icon from '../images/rain_icon.png';
-import clouds_icon from '../images/clouds_icon.png';
-import snow_icon from '../images/snow_icon.png';
-import thunderstorm_icon from '../images/thunderstorm_icon.png';
-import drizzle_icon from '../images/drizzle_icon.png';
-import mist_icon from '../images/mist_icon.png';
-import sand_icon from '../images/sand_icon.png';
-import ash_icon from '../images/ash_icon.png';
-import tornado_icon from '../images/tornado_icon.png';
-import squall_icon from '../images/squall_icon.png';
 import Container from "react-bootstrap/esm/Container";
 import WeatherOutput from './WeatherOutput';
+import {WEATHER_DATA, DAY_OF_WEEK} from '../constants.js';
+import * as http from '../http';
+import * as helpers from '../helpers';
 
 function WeatherInput() {
-    const city = localStorage.getItem('location') || DEFAULT_LOCATION;
-    const [location, setLocation] = useState(city);
-    // const [cookies, setCookie] = useCookies(['location']);
-    const [forecast, setForecast] = useState({
-            temp: '',
-            feels_like: '',
-            descr: '',
-            // iconName: ''
-        });
+    const localStorageLocation = localStorage.getItem('location') || DEFAULT_LOCATION; // city
+    const [location, setLocation] = useState(localStorageLocation); 
+    const [forecast, setForecast] = useState([{
+        day: 'current',
+        temp: '',
+        minTemp: '',
+        maxTemp: '',
+        feels_like: '',
+        descr: '',
+    }]);
+
     const [icon, setIcon] = useState('');
-    const weatherData = {
-        clear: sunny_icon,
-        clouds: clouds_icon,
-        // 'overcast clouds': overcast_clouds_icon,
-        rain: rain_icon,
-        snow: snow_icon,
-        thunderstorm: thunderstorm_icon,
-        drizzle: drizzle_icon,
-        mist: mist_icon,
-        smoke: mist_icon,
-        haze: mist_icon,
-        dust: mist_icon,
-        fog: mist_icon,
-        sand: sand_icon,
-        ash: ash_icon,
-        tornado: tornado_icon,
-        squall: squall_icon
-    }
-    const dayOfWeek = ['current', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
     useEffect(() => {
         localStorage.setItem('location', location);
-
-        Object.keys(weatherData).map((key, value) => {
-            if (key == forecast.descr.toLowerCase()) {
-
-                setIcon(weatherData[key]);
-            }
+        
+        forecast.map((val) => {
+            Object.keys(WEATHER_DATA).map((key, value) => {
+                if (key == val.descr.toLowerCase()) {
+                    setIcon(WEATHER_DATA[key]);
+                }
+            });
         })
+
     }, [location, forecast]); 
 
     useEffect(() => {
         async function fetchData() {
-            await getWeatherData();
+           await getWeatherData();
         }
+        fetchData()
 
-        fetchData();
+        forecast.forEach((value, index) => {
+            <WeatherOutput forecastData={value} icon={icon} day={value.day}/>
+        });
+
     }, []);
 
     function changeHandler(event) {
@@ -72,21 +51,31 @@ function WeatherInput() {
     }
 
     async function getWeatherData() {
-        const cityOutput = document.getElementsByClassName('weather__location')[0].getElementsByTagName('p')[0];
+        let cityStr = document.getElementsByClassName('weather__location')[0].getElementsByTagName('p')[0].innerHTML;
 
         try {
-            cityOutput.innerHTML = `Your city: ${location}`; // || location
-
-            const urlLocation = `https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=adf38b48f7dadb4280bc1f2b2a841845`; //  ? cookies.location: location
-            const response = await axios.get(urlLocation);
-            const urlWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${response.data[0].lat}&lon=${response.data[0].lon}&units=metric&appid=adf38b48f7dadb4280bc1f2b2a841845`;
+            cityStr = `Your city: ${location}`; // || location
             
-            axios.get(urlWeather).then((res) => {
-                setForecast({temp: res.data.main.temp, feels_like: res.data.main.feels_like, descr: res.data.weather[0].main}); // descr: res.data.clouds.all, 
-            });
+            const locationRes = await http.getLocation(location);
+            const weatherRes = await http.getWeather(locationRes);
+            const forecastRes = await http.getForecast(locationRes);
+            const updateForecast = [{temp: weatherRes.main.temp, feels_like: weatherRes.main.feels_like, descr: weatherRes.weather[0].main}]
+
+            for (const day of forecastRes) {
+                updateForecast.push({
+                    day: DAY_OF_WEEK[helpers.getShortNameOfDay(day.date_epoch)],
+                    temp: day.hour[6].temp_c,
+                    feels_like: day.hour[6].feelslike_c,
+                    descr: day.hour[6].condition.text
+                })
+            }
+            
+
+            setForecast(updateForecast);
+
         }
         catch (error) {
-            cityOutput.innerHTML = 'Sorry, there is not such city.';
+            cityStr = 'Sorry, there is not such city.';
         }
     }
 
@@ -109,7 +98,10 @@ function WeatherInput() {
 
                     <p>Your city: <span>{location}</span></p>
                 </div>
-                <WeatherOutput forecastData={forecast} icon={icon} day={dayOfWeek[0]}/>
+                <div className="weather__forecast">
+                    {new Array(forecast.length).fill().map((value, index) => <WeatherOutput forecastData={forecast[index]} icon={icon} day={forecast[index].day}/>)}
+                </div>
+                {/* <WeatherOutput forecastData={forecast} icon={icon} day={dayOfWeek[0]}/> */}
             </Container>
         </div>
     );

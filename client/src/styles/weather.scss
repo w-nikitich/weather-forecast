@@ -7,8 +7,10 @@ p {
 .weather {
     font-family: $font-family;
 
-    &__data {
-        width: 30vw;
+    &__forecast {
+        display: grid;
+        grid-template-columns: repeat(3, 25vw);
+
     }
 
     &__location {
@@ -39,9 +41,15 @@ p {
         position: relative;
         background: rgba(255, 255, 255, 0.057);
         padding: 20px;
-        width: 30vw;
         border-left: 2px solid $weather-border-color;
-        border-right: 2px solid $weather-border-color;
+
+        &:nth-of-type(3), &:nth-of-type(6), &:last-of-type {
+            border-right: 2px solid $weather-border-color;
+        }
+
+        &:last-of-type {
+            width: 25.3vw;
+        }
     }
 
     &__output {
@@ -67,11 +75,7 @@ p {
     }
 }
 
-.empty {
-    display: none;
-}
-
-.current {
+.current, .monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday {
     // position: relative;
     text-align: center;
     font-weight: 600;

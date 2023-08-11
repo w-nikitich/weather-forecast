@@ -3,12 +3,18 @@
 @import './header.scss';
 @import './weather.scss';
 @import './login-page.scss';
+@import './details-page.scss';
 
 .container {
     
 }
 
-.home {
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.home, .details {
     background-image: url($bg_desktop_default);
     background-repeat: no-repeat;
     background-size: cover;

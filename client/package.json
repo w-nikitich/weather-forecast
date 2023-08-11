@@ -18,8 +18,10 @@
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
     "react-dotenv": "^0.1.3",
+    "react-redux": "^8.1.2",
     "react-router-dom": "^6.14.1",
     "react-scripts": "5.0.1",
+    "redux": "^4.2.1",
     "sass": "^1.63.6",
     "sequelize": "^6.32.1",
     "web-vitals": "^2.1.4"

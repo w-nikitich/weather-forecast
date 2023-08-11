@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const getLocation = async (location) => {
-    const urlLocation = `https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=2&appid=adf38b48f7dadb4280bc1f2b2a841845`; //  ? cookies.location: location
+export const getLocation = async (city) => {
+    const urlLocation = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=2&appid=adf38b48f7dadb4280bc1f2b2a841845`; //  ? cookies.location: location
     return (await axios.get(urlLocation)).data[0];
 }
 

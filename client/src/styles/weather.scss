@@ -73,6 +73,15 @@ p {
             width: 100%
         }
     }
+
+    &__temp__interval {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &__temp--min, &__temp--max {
+        font-size: 0.8em;
+    }
 }
 
 .current, .monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday {

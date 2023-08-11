@@ -1,1 +1,2 @@
-export const DEFAULT_LOCATION = 'Kyiv'
+export const DEFAULT_CITY = 'Kyiv'
+export const DEFAULT_COUNTRY = 'Ukraine'

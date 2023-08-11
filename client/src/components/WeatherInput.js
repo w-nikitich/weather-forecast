@@ -1,15 +1,21 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { DEFAULT_LOCATION } from "../config";
+import {Link} from 'react-router-dom';
+import { DEFAULT_CITY, DEFAULT_COUNTRY } from "../config";
 import Container from "react-bootstrap/esm/Container";
 import WeatherOutput from './WeatherOutput';
-import {WEATHER_DATA, DAY_OF_WEEK} from '../constants.js';
+import {WEATHER_DATA, DAY_OF_WEEK, COUNTRY_CODES} from '../constants.js';
 import * as http from '../http';
 import * as helpers from '../helpers';
+import { useDispatch } from "react-redux";
+import { setBaseInfo, setForecastCity } from "../setObjects";
 
 function WeatherInput() {
-    const localStorageLocation = localStorage.getItem('location') || DEFAULT_LOCATION; // city
-    const [location, setLocation] = useState(localStorageLocation); 
+    const localStorageCity = localStorage.getItem('city') || DEFAULT_CITY; 
+    const localStorageCountry = localStorage.getItem('country') || DEFAULT_COUNTRY;
+    const [city, setCity] = useState(localStorageCity); 
+    const [country, setCountry] = useState(localStorageCountry); 
+    const [location, setLocation] = useState([localStorageCity, localStorageCountry]);
     const [forecast, setForecast] = useState([{
         day: 'current',
         temp: '',
@@ -17,56 +23,69 @@ function WeatherInput() {
         maxTemp: '',
         feels_like: '',
         descr: '',
+        icon: ''
     }]);
-
-    const [icon, setIcon] = useState('');
-
-    useEffect(() => {
-        localStorage.setItem('location', location);
-        
-        forecast.map((val) => {
-            Object.keys(WEATHER_DATA).map((key, value) => {
-                if (key == val.descr.toLowerCase()) {
-                    setIcon(WEATHER_DATA[key]);
-                }
-            });
-        })
-
-    }, [location, forecast]); 
+    let forecastRes;
+    const dispatch = useDispatch();
 
     useEffect(() => {
         async function fetchData() {
-           await getWeatherData();
-        }
-        fetchData()
-
-        forecast.forEach((value, index) => {
-            <WeatherOutput forecastData={value} icon={icon} day={value.day}/>
-        });
-
+            await getWeatherData();
+         }
+         fetchData();
+ 
+         forecast.forEach((value, index) => {
+             <WeatherOutput forecastData={value} day={value.day}/>
+         });
     }, []);
 
+    useEffect(() => {
+        const locationArr = location[0].split(/,|, /);
+        const locationCity = locationArr[0];
+        const locationCountry = locationArr[1];
+        setCity(locationCity);
+        setCountry(locationCountry);
+
+    }, [forecast, location]); 
+
+    useEffect(() => {
+        localStorage.setItem('city', city);
+    }, [city]);
+
+    useEffect(() => {
+        localStorage.setItem('country', country);
+    }, [country]);
+
     function changeHandler(event) {
-        setLocation(event.target.value);
+        setLocation([event.target.value]);
     }
 
     async function getWeatherData() {
         let cityStr = document.getElementsByClassName('weather__location')[0].getElementsByTagName('p')[0].innerHTML;
 
         try {
-            cityStr = `Your city: ${location}`; // || location
-            
-            const locationRes = await http.getLocation(location);
-            const weatherRes = await http.getWeather(locationRes);
-            const forecastRes = await http.getForecast(locationRes);
-            const updateForecast = [{temp: weatherRes.main.temp, feels_like: weatherRes.main.feels_like, descr: weatherRes.weather[0].main}]
+            cityStr = `Your city: ${city}`; 
 
-            for (const day of forecastRes) {
+            const locationRes = await http.getLocation(city);
+            const weatherRes = await http.getWeather(locationRes);
+            forecastRes = await http.getForecast(locationRes);
+            const updateForecast = [{
+                day: 'current',
+                temp: weatherRes.main.temp, 
+                feels_like: weatherRes.main.feels_like, 
+                descr: weatherRes.weather[0].main, 
+                icon: helpers.getAppropriateIcon(WEATHER_DATA, weatherRes.weather[0].main)
+            }]
+
+            for (const day of forecastRes) {   
                 updateForecast.push({
-                    day: DAY_OF_WEEK[helpers.getShortNameOfDay(day.date_epoch)],
+                    day: DAY_OF_WEEK[await helpers.getShortNameOfDay(day.date_epoch)],
                     temp: day.hour[6].temp_c,
+                    minTemp: day.day.mintemp_c,
+                    maxTemp: day.day.maxtemp_c,
                     feels_like: day.hour[6].feelslike_c,
-                    descr: day.hour[6].condition.text
+                    descr: day.hour[6].condition.text,
+                    icon: helpers.getAppropriateIcon(WEATHER_DATA, day.hour[6].condition.text)
                 })
             }
             
@@ -85,10 +104,16 @@ function WeatherInput() {
         }
     }
 
+    function handleLinkClick({baseInfoData, cityData}) {
+        dispatch(setBaseInfo(baseInfoData));
+        dispatch(setForecastCity(cityData));
+    }
+
     return(
         <div className="weather">
             <Container>
                 <div className="weather__location">
+                    <p>Enter your city and country with coma</p>
                     <input 
                     value={location}
                     onChange={changeHandler}
@@ -96,12 +121,19 @@ function WeatherInput() {
                     onKeyDown = {searchLocation}
                     type="text"/>
 
-                    <p>Your city: <span>{location}</span></p>
+                    <p>Your city: <span>{city}</span></p>
                 </div>
                 <div className="weather__forecast">
-                    {new Array(forecast.length).fill().map((value, index) => <WeatherOutput forecastData={forecast[index]} icon={icon} day={forecast[index].day}/>)}
+                    {new Array(forecast.length).fill().map((value, index) =>
+                        <Link to={`/DetailsPage/${city}`} relative="path" onClick={() => handleLinkClick({
+                            baseInfoData:forecast[index], 
+                            cityData: forecastRes
+                            })
+                        }>
+                            <WeatherOutput forecastData={forecast[index]} day={forecast[index].day}/>
+                        </Link>
+                     )}
                 </div>
-                {/* <WeatherOutput forecastData={forecast} icon={icon} day={dayOfWeek[0]}/> */}
             </Container>
         </div>
     );
